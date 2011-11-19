@@ -34,7 +34,7 @@ def index():
 	_method='GET',_action=URL(f='index')
 	)
 
-	resultados = UL()
+	resultados = TAG.div(_id='resultados')
 
 	if not request.get_vars.go:
 		return dict(form=form,resultados=resultados)
@@ -44,13 +44,15 @@ def index():
 
 
 	if len(data)==0:
-		data = db((db.userv.slug.contains(go)) | (db.userv.service.contains(go))).select()
+		data = db(
+		(db.userv.slug.contains(go)) | (db.userv.service.contains(go)) | (db.userv.desc.contains(go))
+		).select()
 
 		if len(data)>0:
 			for d in data:
-				resultados.append(LI(A(d.service,_href=URL(f='index',vars=dict(go=d.slug)))))
+				resultados.append(TAG.div(A(TAG.strong(d.service),_href=URL(f='index',vars=dict(go=d.slug))),TAG.br(EM(d.desc)),_class='resultado'))
 
-			resultados = CAT(P('Quiso decir...'),resultados)
+			resultados = CAT(H3('Quiso decir...'),resultados)
 		else:
 			resultados = P('No hubo resultados')
 	else:
