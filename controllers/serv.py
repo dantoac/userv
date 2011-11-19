@@ -3,39 +3,51 @@
 if 0:
 	from gluon.dal import *
 	from gluon.html import *
-	from gluon import current
+	from gluon.globals import *
+	session = Session
+	request = Request
+	response = Response
 	db = DAL
 
-
-def index():
-	form = SQLFORM(db.userv)
+@auth.requires_login()
+def new():
+	form = SQLFORM(db.userv,request.args(0))
 
 	if form.process().accepted:
-		redirect(URL(f='my'))
+		redirect(URL(r=request,f='index'))
 	elif form.errors:
-		response = T('Corrige los errores señalados')
+		response.flash = T('Corrige los errores señalados')
+
+
 	return dict(form=form)
 
+
+
 @auth.requires_login()
-def my():
+def index():
+
 	data = db(db.userv.created_by == auth.user_id).select()
 	#services = SQLTABLE(data)
 
 	services = TABLE(THEAD(TR(
 	TH(''),
+
 	TH('Servicio'),
 	TH('Link'),
 	TH('Ip'),
 	TH('Descripción'),
+	TH(''),
 	)))
 
 	for d in data:
 		services.append(TR(
-		TD(A('Renovar',callback=URL(f='update_ip',args=[d.id]),_class='button positive',target='current_ip')),
+		TD(A('Renovar IP',callback=URL(f='update_ip',args=[d.id]),_class='button positive',target='servip%s' % (d.id))),
+
 		TD(d.service),
 		TD(A('link',_href=URL(c='go',f='index',vars=dict(servid=d.id))),
-		TD(d.ip,_id='current_ip'),
+		TD(d.ip,_id='servip%s' % (d.id)),
 		TD(d.desc),
+		TD(A(SPAN(_class='icon pen'),_href=URL(f='new',args=d.id),_class='button')),
 
 		)))
 
@@ -48,5 +60,6 @@ def update_ip():
 
 	userv_id = request.args(0)
 	new_ip = request.client
-	db.user[userv_id].ip = new_ip
+	db.userv[userv_id].update_record(ip=new_ip)
+	#db.commit()
 	return new_ip
