@@ -44,9 +44,8 @@ def index():
 
 
 	if len(data)==0:
-		data = db(
-		(db.userv.slug.contains(go)) | (db.userv.service.contains(go)) | (db.userv.desc.contains(go))
-		).select()
+		data = db((db.userv.slug.contains(go) | db.userv.service.contains(go) | db.userv.desc.contains(go)
+					) & (db.userv.is_active == True)).select()
 
 		if len(data)>0:
 			for d in data:
@@ -60,7 +59,7 @@ def index():
 		#redirect(URL(c='go',vars=dict(servid = data.as_list()[0]['id'])))
 		raise HTTP(301,Location=URL(c='go',vars=dict(servid = data.as_list()[0]['id'])))
 		#for d in data:
-		#	resultados.append(LI(A(d.service,_href=URL(f='index',vars=dict(go=d.slug)))))
+			#resultados.append(LI(A(d.service,_href=URL(c='go',f='index',vars=dict(servid=d.id)))))
 
 	return dict(form=form,resultados=resultados)
 

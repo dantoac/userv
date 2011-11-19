@@ -33,23 +33,28 @@ def index():
 	TH(''),
 
 	TH('Servicio'),
-	TH('Link'),
 	TH('Ip'),
 	TH('Descripción'),
+	TH('Link'),
+	TH('Activo'),
+	TH('Actualizado'),
 	TH(''),
 	)))
 
 	for d in data:
 		services.append(TR(
-		TD(A('Renovar IP',callback=URL(f='update_ip',args=[d.id]),_class='button positive',target='servip%s' % (d.id))),
+		TD(A(SPAN(_class='icon loop'),'IP',callback=URL(f='update_ip',args=[d.id]),_class='button positive',target='servip%s' % (d.id))),
 
 		TD(d.service),
-		TD(A('link',_href=URL(c='go',f='index',vars=dict(servid=d.id))),
 		TD(d.ip,_id='servip%s' % (d.id)),
 		TD(d.desc),
+		TD(A(SPAN(_class='icon home'),'link',_href=URL(c='go',f='index',vars=dict(servid=d.id)),_class='button'),
+		TD(d.is_active),
+		TD(d.modified_on),
 		TD(A(SPAN(_class='icon pen'),_href=URL(f='new',args=d.id),_class='button')),
 
 		)))
+
 
 	return dict(services=services)
 
